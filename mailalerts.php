@@ -530,6 +530,12 @@ class MailAlerts extends Module
                     'title' => $this->l('Product ID'),
                     'type' => 'text',
                 ],
+                'reference' => [
+                    'title' => $this->l('Stock Code'),
+                    'type' => 'text',
+                    'callback_object' => $this,
+                    'callback' => 'renderProduct'
+                ],
                 'product_name' => [
                     'title' => $this->l('Product Name'),
                     'type' => 'text',
@@ -602,6 +608,7 @@ class MailAlerts extends Module
         $sql = (new DbQuery())
             ->select('oos.id_mailalert_customer_oos')
             ->select('oos.id_customer')
+            ->select('p.reference')
             ->select('IF(oos.id_product_attribute > 0, oos.id_product_attribute, NULL)')
             ->select('oos.customer_email')
             ->select('oos.date_add')
@@ -618,6 +625,7 @@ class MailAlerts extends Module
             ->select('IF(cust.id_customer, CONCAT(cust.firstname, " ", cust.lastname), NULL) AS customer_name')
             ->from('mailalert_customer_oos', 'oos')
             ->leftJoin('product_lang', 'pl', 'pl.id_lang = ' . $langId . ' AND pl.id_product = oos.id_product AND pl.id_shop = oos.id_shop')
+            ->leftJoin('product', 'p', 'p.id_product = oos.id_product')
             ->leftJoin('customer', 'cust', 'oos.id_customer = cust.id_customer')
             ->where('oos.id_product = ' . $productId . Shop::addSqlRestriction(false, 'oos'))
             ->orderBy('oos.id_product')
